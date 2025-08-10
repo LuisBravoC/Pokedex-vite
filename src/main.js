@@ -1,10 +1,12 @@
 import './styles/style.css';
-import { apiGet, clearCache } from './js/api';
-import { showRaw, renderPokemon } from './js/pokemon';
+import PokemonController from './components/pokemon/PokemonController';
+import PokemonView from './components/pokemon/PokemonView';
+import PokeAPIService from './services/pokeapi';
 
+// Función auxiliar para seleccionar elementos del DOM
 const el = id => document.getElementById(id);
 
-// resources list (common ones + many endpoints left from original)
+// Lista de recursos disponibles en la API
 const resources = [
   'pokemon', 'ability', 'type', 'move', 'item', 'egg-group', 'pokemon-species',
   'evolution-chain', 'location', 'location-area', 'machine', 'characteristic',
@@ -12,37 +14,146 @@ const resources = [
   'item-category', 'pokemon-habitat', 'pal-park-area'
 ];
 
-el('resource-select').innerHTML = resources.map(r => `<option value="${r}">${r}</option>`).join('');
+// Inicializar la aplicación
+let app;
 
-let allPokemon = [];
-let acIndex = -1;
+// Configurar los event listeners para la exploración de recursos
+function setupResourceExplorer() {
+    el('resource-select').innerHTML = resources.map(r => `<option value="${r}">${r}</option>`).join('');
 
-async function loadAllPokemon() {
-  // try localStorage first
-  try {
-    const cached = localStorage.getItem('pokedex_all_pokemon_v1');
-    if (cached) {
-      allPokemon = JSON.parse(cached);
-      return;
+    el('fetch-btn')?.addEventListener('click', async () => {
+        const resource = el('resource-select').value;
+        const id = el('resource-id').value.trim();
+        try {
+            const path = id ? `${resource}/${id}` : resource;
+            const data = await PokeAPIService.get(path);
+            showRaw(data);
+
+            if (resource === 'pokemon') {
+                app.loadPokemon(id);
+            } else if (resource === 'pokemon-species' && data.evolution_chain) {
+                const chain = await PokeAPIService.get(data.evolution_chain.url);
+                showEvolutionChain(chain);
+            }
+        } catch (e) {
+            alert('Error al obtener el recurso: ' + e.message);
+        }
+    });
+
+    el('list-btn')?.addEventListener('click', async () => {
+        const resource = el('resource-select').value;
+        try {
+            const data = await PokeAPIService.get(`${resource}?limit=20&offset=0`);
+            showListing(data, resource);
+        } catch (e) {
+            alert('Error al listar recursos: ' + e.message);
+        }
+    });
+
+    el('first-151')?.addEventListener('click', async () => {
+        try {
+            const data = await PokeAPIService.get('pokemon?limit=151&offset=0');
+            showListing(data, 'pokemon');
+        } catch (e) {
+            alert('Error al listar Pokémon: ' + e.message);
+        }
+    });
+}
+
+// Función para mostrar listado con paginación
+function showListing(data, resource) {
+    const results = data.results || [];
+    const html = results.map(r => `
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.02)">
+            <div>${r.name}</div>
+            <div><button class="badge" data-url="${r.url}">Abrir</button></div>
+        </div>
+    `).join('');
+
+    const paginationHtml = `
+        <div style="margin-top:8px">
+            ${data.previous ? '<button id="prev-btn" class="badge">Anterior</button>' : ''}
+            ${data.next ? '<button id="next-btn" class="badge">Siguiente</button>' : ''}
+        </div>
+    `;
+
+    const rawJson = el('raw-json');
+    if (rawJson) {
+        rawJson.innerHTML = html + paginationHtml;
+
+        // Configurar event listeners para los botones
+        rawJson.querySelectorAll('button[data-url]').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                try {
+                    const resourceData = await PokeAPIService.get(btn.dataset.url);
+                    showRaw(resourceData);
+                    if (resourceData.sprites) {
+                        app.loadPokemon(resourceData.id);
+                    }
+                } catch (e) {
+                    console.error('Error loading resource:', e);
+                }
+            });
+        });
+
+        if (data.next) {
+            el('next-btn')?.addEventListener('click', async () => {
+                try {
+                    const nextData = await PokeAPIService.get(data.next);
+                    showListing(nextData, resource);
+                } catch (e) {
+                    console.error('Error loading next page:', e);
+                }
+            });
+        }
+        if (data.previous) {
+            el('prev-btn')?.addEventListener('click', async () => {
+                try {
+                    const prevData = await PokeAPIService.get(data.previous);
+                    showListing(prevData, resource);
+                } catch (e) {
+                    console.error('Error loading previous page:', e);
+                }
+            });
+        }
     }
-  } catch (e) { }
-  
-  const data = await apiGet('pokemon?limit=2000');
-  allPokemon = (data.results || []).map(r => ({ name: r.name, url: r.url }));
-  try {
-    localStorage.setItem('pokedex_all_pokemon_v1', JSON.stringify(allPokemon));
-  } catch (e) { }
 }
 
-async function loadPokemon(identifier) {
-  try {
-    const slug = String(identifier).toLowerCase().trim();
-    const data = await apiGet(`pokemon/${slug}`);
-    await renderPokemon(data);
-  } catch (e) {
-    alert('Error al cargar Pokémon: ' + e.message);
-  }
+// Función para mostrar datos en formato JSON
+function showRaw(data) {
+    const rawJson = el('raw-json');
+    if (rawJson) {
+        rawJson.innerHTML = `<pre class="json">${JSON.stringify(data, null, 2)}</pre>`;
+    }
 }
+
+// Función para mostrar cadena de evolución
+function showEvolutionChain(data) {
+    const speciesCard = el('species-card');
+    if (speciesCard) {
+        speciesCard.innerHTML = `<pre style="max-height:320px;overflow:auto">${JSON.stringify(data, null, 2)}</pre>`;
+    }
+}
+
+// Inicializar la aplicación cuando el DOM esté listo
+document.addEventListener('DOMContentLoaded', async () => {
+    const view = new PokemonView(PokeAPIService);
+    const controller = new PokemonController(view, PokeAPIService);
+    app = controller;
+    
+    setupResourceExplorer();
+    
+    // Configurar hotkey para limpiar caché (ctrl+shift+c)
+    window.addEventListener('keydown', e => {
+        if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'c') {
+            PokeAPIService.clearCache();
+            localStorage.clear();
+            alert('Cache limpiado');
+        }
+    });
+
+    await controller.initialize();
+});
 
 // Generic resource fetcher
 async function fetchResource(resource, id) {
