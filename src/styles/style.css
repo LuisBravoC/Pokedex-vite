@@ -152,25 +152,45 @@ html, body {
   position: absolute;
   left: 0;
   right: 0;
-  top: 46px;
-  background: var(--panel);
-  border-radius: 8px;
-  max-height: 240px;
+  top: 42px;
+  background: linear-gradient(180deg, var(--panel), rgba(15, 23, 32, 0.98));
+  border-radius: 12px;
+  max-height: 280px;
   overflow: auto;
   z-index: 30;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.7);
+  box-shadow: 
+    0 10px 25px -5px rgba(0,0,0,0.8),
+    0 4px 10px -5px rgba(0,0,0,0.5);
   display: none;
+  border: 1px solid rgba(255,255,255,0.05);
+  backdrop-filter: blur(10px);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.2) transparent;
 }
 
 .autocomplete .item {
-  padding: 8px 10px;
+  padding: 10px 12px;
   border-bottom: 1px solid rgba(255,255,255,0.03);
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  font-size: 0.95rem;
+}
+
+.autocomplete .item:last-child {
+  border-bottom: none;
 }
 
 .autocomplete .item:hover,
 .autocomplete .item.active {
-  background: rgba(255,255,255,0.03);
+  background: linear-gradient(90deg, 
+    rgba(255,255,255,0.05), 
+    rgba(255,255,255,0.02)
+  );
+  padding-left: 16px;
+  color: var(--accent);
 }
 
 /* Controls */
@@ -183,20 +203,118 @@ html, body {
 .controls select,
 .controls input {
   width: 100%;
-  padding: 8px;
+  padding: 8px 12px;
   border-radius: 8px;
-  border: 1px solid rgba(255,255,255,0.04);
-  background: transparent;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
   color: var(--text);
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
 }
 
-.controls button {
+.controls select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23e6eef8' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 32px;
+}
+
+.controls select:hover,
+.controls input:hover {
+  border-color: rgba(255,255,255,0.15);
+  background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.04));
+}
+
+.controls select:focus,
+.controls input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+
+.button-group {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.action-btn {
+  flex: 1;
   padding: 10px;
-  border-radius: 8px;
-  border: none;
-  background: linear-gradient(180deg,#111,#222);
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.1);
   color: var(--text);
   cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 42px;
+}
+
+.btn-icon {
+  font-size: 1.1rem;
+}
+
+.fetch-btn {
+  background: linear-gradient(180deg, #4a90e2, #357abd);
+  border-color: #357abd;
+}
+
+.fetch-btn:hover {
+  background: linear-gradient(180deg, #5a9ee8, #4a90e2);
+  transform: translateY(-1px);
+}
+
+.list-btn {
+  background: linear-gradient(180deg, #50b794, #40a583);
+  border-color: #40a583;
+}
+
+.list-btn:hover {
+  background: linear-gradient(180deg, #60c5a2, #50b794);
+  transform: translateY(-1px);
+}
+
+.random-btn {
+  background: linear-gradient(180deg, #e6b800, #cc9900);
+  border-color: #cc9900;
+}
+
+.random-btn:hover {
+  background: linear-gradient(180deg, #ffd11a, #e6b800);
+  transform: translateY(-1px);
+}
+
+.gen1-btn {
+  background: linear-gradient(180deg, #e74c3c, #c0392b);
+  border-color: #c0392b;
+}
+
+.gen1-btn:hover {
+  background: linear-gradient(180deg, #eb6b5e, #e74c3c);
+  transform: translateY(-1px);
+}
+
+.action-btn:active {
+  transform: translateY(0);
+  filter: brightness(0.95);
+}
+
+@media (max-width: 768px) {
+  .button-group {
+    flex: 1;
+    min-width: 200px;
+  }
+  
+  .btn-text {
+    font-size: 0.85rem;
+  }
 }
 
 /* Right panel */

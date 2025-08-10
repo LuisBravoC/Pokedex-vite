@@ -32,13 +32,25 @@
           <label style="color:var(--accent);font-weight:700">Explorar recursos</label>
           <select id="resource-select"></select>
           <input id="resource-id" type="text" placeholder="id o nombre (opcional)" />
-          <div style="display:flex;gap:8px">
-            <button id="fetch-btn">Fetch</button>
-            <button id="list-btn">List (pag)</button>
+                  <div class="button-group">
+            <button id="fetch-btn" class="action-btn fetch-btn">
+              <span class="btn-icon">🔍</span>
+              <span class="btn-text">Buscar Recurso</span>
+            </button>
+            <button id="list-btn" class="action-btn list-btn">
+              <span class="btn-icon">📋</span>
+              <span class="btn-text">Lista (pag)</span>
+            </button>
           </div>
-          <div style="display:flex;gap:8px">
-            <button id="random-pokemon">Aleatorio</button>
-            <button id="first-151">Primera gen (1-151)</button>
+          <div class="button-group">
+            <button id="random-pokemon" class="action-btn random-btn">
+              <span class="btn-icon">🎲</span>
+              <span class="btn-text">Aleatorio</span>
+            </button>
+            <button id="first-151" class="action-btn gen1-btn">
+              <span class="btn-icon">⭐</span>
+              <span class="btn-text">Primera gen (1-151)</span>
+            </button>
           </div>
         </div>
 
