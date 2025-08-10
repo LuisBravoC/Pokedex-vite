@@ -101,15 +101,11 @@ export async function renderPokemon(p) {
     else if (key.includes('special-defense') || key === 'special-defense') fill.classList.add('stat-sp-defense');
     else if (key.includes('speed')) fill.classList.add('stat-speed');
     
-    fill.style.width = Math.max(4, Math.round((s.base_stat / maxStat) * 100)) + '%';
-    const statValue = document.createElement('div');
-    statValue.style.position = 'absolute';
-    statValue.style.right = '-25px';
-    statValue.style.color = 'var(--text)';
-    statValue.textContent = s.base_stat;
+    const percentage = Math.max(4, Math.round((s.base_stat / maxStat) * 100));
+    fill.style.width = percentage + '%';
+    fill.textContent = s.base_stat;
     barWrap.style.position = 'relative';
     barWrap.appendChild(fill);
-    barWrap.appendChild(statValue);
     row.appendChild(name);
     row.appendChild(barWrap);
     statsDiv.appendChild(row);

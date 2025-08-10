@@ -276,23 +276,33 @@ html, body {
 
 .stat-bar {
   flex: 1;
-  background: rgba(255,255,255,0.04);
-  height: 12px;
+  background: rgba(0, 0, 0, 0.2);
+  height: 20px;
   border-radius: 999px;
   overflow: hidden;
+  position: relative;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
 }
 
 .stat-fill {
   height: 100%;
   border-radius: 999px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
 }
 
-.stat-hp { background: #73D677; }
-.stat-attack { background: #FF8C6A; }
-.stat-defense { background: #6EA0FF; }
-.stat-sp-attack { background: #C98CFF; }
-.stat-sp-defense { background: #66E0E6; }
-.stat-speed { background: #FFD86E; color: #000; }
+.stat-hp { background: linear-gradient(90deg, #21cd68, #27AE60); }
+.stat-attack { background: linear-gradient(90deg, #FF5252, #FF1744); }
+.stat-defense { background: linear-gradient(90deg, #448AFF, #2979FF); }
+.stat-sp-attack { background: linear-gradient(90deg, #AB47BC, #8E24AA); }
+.stat-sp-defense { background: linear-gradient(90deg, #00BCD4, #00ACC1); }
+.stat-speed { background: linear-gradient(90deg, #FFD600, #FFC400); color: #000; }
 
 /* moves list */
 .moves {
