@@ -30,14 +30,14 @@ function setupResourceExplorer() {
             if (resource === 'pokemon') {
                 app.loadPokemon(id);
             } else {
-                showRaw(data);
+          // ...existing code...
             }
             if (resource === 'pokemon-species' && data.evolution_chain) {
                 const chain = await PokeAPIService.get(data.evolution_chain.url);
-                showEvolutionChain(chain);
+          // ...existing code...
             }
         } catch (e) {
-            alert('Error al obtener el recurso: ' + e.message);
+        alert('Error al obtener el recurso.');
         }
     });
 
@@ -87,7 +87,7 @@ function showListing(data, resource) {
             btn.addEventListener('click', async () => {
                 try {
                     const resourceData = await PokeAPIService.get(btn.dataset.url);
-                    showRaw(resourceData);
+                        // ...existing code...
                     if (resourceData.sprites) {
                         app.loadPokemon(resourceData.id);
                     }
@@ -122,18 +122,12 @@ function showListing(data, resource) {
 
 // Función para mostrar datos en formato JSON
 function showRaw(data) {
-    const rawJson = el('raw-json');
-    if (rawJson) {
-        rawJson.innerHTML = `<pre class="json">${JSON.stringify(data, null, 2)}</pre>`;
-    }
+
 }
 
 // Función para mostrar cadena de evolución
 function showEvolutionChain(data) {
-    const speciesCard = el('species-card');
-    if (speciesCard) {
-        speciesCard.innerHTML = `<pre style="max-height:320px;overflow:auto">${JSON.stringify(data, null, 2)}</pre>`;
-    }
+
 }
 
 // Inicializar la aplicación cuando el DOM esté listo
@@ -155,67 +149,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     await controller.initialize();
 });
-
-// Generic resource fetcher
-async function fetchResource(resource, id) {
-  try {
-    const path = id ? `${resource}/${id}` : resource;
-    const data = await apiGet(path);
-    showRaw(data);
-    if (resource === 'pokemon') renderPokemon(data);
-    else if (resource === 'pokemon-species') {
-      if (data.evolution_chain) {
-        const c = await apiGet(data.evolution_chain.url);
-        renderEvolutionChain(c);
-      }
-      el('species-card').innerHTML = `<pre style="max-height:320px;overflow:auto">${JSON.stringify(data, null, 2)}</pre>`;
-    } else {
-      el('species-card').innerHTML = `<pre style="max-height:320px;overflow:auto">${JSON.stringify(data, null, 2)}</pre>`;
-    }
-  } catch (e) {
-    alert('Fetch failed: ' + e.message);
-  }
-}
-
-// Listing with pagination
-async function listResource(resource, url) {
-  try {
-    const path = url || `pokemon?limit=20&offset=0`;
-    const data = await apiGet(path);
-    showRaw(data);
-    const results = data.results || [];
-    const html = results.map(r => `
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.02)">
-        <div>${r.name}</div>
-        <div><button class="badge" data-url="${r.url}">Abrir</button></div>
-      </div>
-    `).join('');
-    
-    el('raw-json').innerHTML = html + `
-      <div style="margin-top:8px">
-        ${data.previous ? '<button id="prev-btn" class="badge">Anterior</button>' : ''}
-        ${data.next ? '<button id="next-btn" class="badge">Siguiente</button>' : ''}
-      </div>
-    `;
-    
-    el('raw-json').querySelectorAll('button[data-url]').forEach(b =>
-      b.addEventListener('click', async e => {
-        const d = await apiGet(e.currentTarget.dataset.url);
-        showRaw(d);
-        if (d.sprites) renderPokemon(d);
-      })
-    );
-    
-    if (data.next) {
-      el('next-btn').addEventListener('click', () => listResource(resource, data.next));
-    }
-    if (data.previous) {
-      el('prev-btn').addEventListener('click', () => listResource(resource, data.previous));
-    }
-  } catch (e) {
-    alert('List fetch failed: ' + e.message);
-  }
-}
 
 function showAutocomplete(q) {
   const box = el('autocomplete');
@@ -334,6 +267,6 @@ window.addEventListener('keydown', e => {
   }
 });
 
-// Initial load
-loadAllPokemon();
+
+// ...existing code...
 loadPokemon(1);

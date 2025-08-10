@@ -1,4 +1,4 @@
-import { formatName, formatMeasurement, formatEncounterMethod, cleanText } from '../../utils/formatter';
+import { formatName, formatMeasurement, formatEncounterMethod, cleanText, getSpanishName } from '../../utils/formatter';
 import Pokemon from './Pokemon';
 
 /**
@@ -32,7 +32,7 @@ class PokemonView {
     /**
      * Actualiza la vista con los datos de un Pokémon
      */
-    updateView(pokemon) {
+    async updateView(pokemon) {
         if (!pokemon) return;
         this.currentPokemon = pokemon;
         console.log('Updating view with pokemon:', pokemon);
@@ -45,11 +45,11 @@ class PokemonView {
         `;
         
         // Se implementarán los demás métodos de renderizado
-        this.renderTypes(pokemon);
+        await this.renderTypes(pokemon);
         this.renderBasicInfo(pokemon);
         this.renderSprites(pokemon);
-        this.renderStats(pokemon);
-        this.renderMoves(pokemon);
+        await this.renderStats(pokemon);
+        await this.renderMoves(pokemon);
 
         // Cargar datos adicionales
         this.loadSpecies(pokemon);
@@ -106,15 +106,21 @@ class PokemonView {
                          species.flavor_text_entries?.find(ft => ft.language.name === 'en') ||
                          species.flavor_text_entries?.[0];
 
+            // Obtener traducciones en español para color, hábitat, forma y crecimiento
+            const colorEs = species.color ? await getSpanishName(this.service.get.bind(this.service), 'pokemon-color', species.color.name) : '';
+            const habitatEs = species.habitat ? await getSpanishName(this.service.get.bind(this.service), 'pokemon-habitat', species.habitat.name) : '';
+            const shapeEs = species.shape ? await getSpanishName(this.service.get.bind(this.service), 'pokemon-shape', species.shape.name) : '';
+            const growthEs = species.growth_rate ? await getSpanishName(this.service.get.bind(this.service), 'growth-rate', species.growth_rate.name) : '';
+
             let html = `
             <div class="species-info">
                 <div class="info-title">Información de Especie</div>
                 
                 <div class="info-grid">
-                    ${species.color ? `<div class="info-label">Color</div><div class="info-value">${formatName(species.color.name)}</div>` : ''}
-                    ${species.habitat ? `<div class="info-label">Hábitat</div><div class="info-value">${formatName(species.habitat.name)}</div>` : ''}
-                    ${species.shape ? `<div class="info-label">Forma</div><div class="info-value">${formatName(species.shape.name)}</div>` : ''}
-                    ${species.growth_rate ? `<div class="info-label">Crecimiento</div><div class="info-value">${formatName(species.growth_rate.name)}</div>` : ''}
+                    ${species.color ? `<div class="info-label">Color</div><div class="info-value">${colorEs}</div>` : ''}
+                    ${species.habitat ? `<div class="info-label">Hábitat</div><div class="info-value">${habitatEs}</div>` : ''}
+                    ${species.shape ? `<div class="info-label">Forma</div><div class="info-value">${shapeEs}</div>` : ''}
+                    ${species.growth_rate ? `<div class="info-label">Crecimiento</div><div class="info-value">${growthEs}</div>` : ''}
                 </div>
 
                 ${flavor ? `
@@ -201,26 +207,32 @@ class PokemonView {
                         });
                     });
 
+                    // Renderizar métodos con condiciones traducidas
+                    const methodHtml = await Promise.all(Array.from(methods.entries()).map(async ([method, info]) => {
+                        let conditionsHtml = '';
+                        if (info.conditions.size > 0) {
+                            const translated = await Promise.all(Array.from(info.conditions).map(async c => await getSpanishName(this.service.get.bind(this.service), 'encounter-condition-value', c)));
+                            conditionsHtml = `<div class="location-detail encounter-condition"><strong>${translated.join(', ')}</strong></div>`;
+                        }
+                        return `
+                            <div class="location-detail encounter-method">
+                                ${formatEncounterMethod(method)}
+                            </div>
+                            <div class="location-detail encounter-level">
+                                Nv. <strong>${Array.from(info.levels).join(', ')}</strong>
+                            </div>
+                            <div class="location-detail encounter-chance">
+                                <strong>${Array.from(info.chances).reduce((a, b) => a + b, 0)}%</strong> prob.
+                            </div>
+                            ${conditionsHtml}
+                        `;
+                    }));
+
                     return `
                         <div class="location-card">
                             <div class="location-name">${locationName}</div>
                             <div class="location-details">
-                                ${Array.from(methods.entries()).map(([method, info]) => `
-                                    <div class="location-detail encounter-method">
-                                        ${formatEncounterMethod(method)}
-                                    </div>
-                                    <div class="location-detail encounter-level">
-                                        Nv. <strong>${Array.from(info.levels).join(', ')}</strong>
-                                    </div>
-                                    <div class="location-detail encounter-chance">
-                                        <strong>${Array.from(info.chances).reduce((a, b) => a + b, 0)}%</strong> prob.
-                                    </div>
-                                    ${info.conditions.size > 0 ? `
-                                        <div class="location-detail encounter-condition">
-                                            <strong>${Array.from(info.conditions).map(formatName).join(', ')}</strong>
-                                        </div>
-                                    ` : ''}
-                                `).join('')}
+                                ${methodHtml.join('')}
                             </div>
                         </div>
                     `;
@@ -307,15 +319,14 @@ class PokemonView {
     /**
      * Renderiza los tipos del Pokémon
      */
-    renderTypes(pokemon) {
+    async renderTypes(pokemon) {
         if (!this.elements.types) return;
-        
-        const typeElements = pokemon.types.map(t => `
-            <button class="badge type-${t.type.name}" data-url="${t.type.url}">
-                ${formatName(t.type.name)}
-            </button>
-        `);
-        
+        const typeElements = await Promise.all(
+            pokemon.types.map(async t => {
+                const nameEs = await getSpanishName(this.service.get.bind(this.service), 'type', t.type.name);
+                return `<button class="badge type-${t.type.name}" data-url="${t.type.url}">${nameEs}</button>`;
+            })
+        );
         this.elements.types.innerHTML = typeElements.join('');
     }
 
@@ -360,7 +371,7 @@ class PokemonView {
     /**
      * Renderiza las estadísticas
      */
-    renderStats(pokemon) {
+    async renderStats(pokemon) {
         if (!this.elements.stats) return;
 
         const getStatClass = (statName) => {
@@ -375,45 +386,50 @@ class PokemonView {
             return classes[statName] || '';
         };
 
-        const stats = pokemon.getStats().map(stat => `
-            <div class="stat-row">
-                <div class="stat-name">${formatName(stat.name)}</div>
-                <div class="stat-bar">
-                    <div class="stat-fill ${getStatClass(stat.name)}" 
-                         style="width:${Math.min(100, (stat.value / stat.max) * 100)}%">
-                        ${stat.value}
+        const stats = await Promise.all(
+            pokemon.getStats().map(async stat => {
+                const nameEs = await getSpanishName(this.service.get.bind(this.service), 'stat', stat.name);
+                return `<div class="stat-row">
+                    <div class="stat-name">${nameEs}</div>
+                    <div class="stat-bar">
+                        <div class="stat-fill ${getStatClass(stat.name)}" 
+                             style="width:${Math.min(100, (stat.value / stat.max) * 100)}%">
+                            ${stat.value}
+                        </div>
                     </div>
-                </div>
-            </div>
-        `).join('');
+                </div>`;
+            })
+        );
 
-        const abilities = pokemon.abilities.map(a => `
-            <button class="badge" 
-                    data-url="${a.ability.url}" 
-                    title="${a.is_hidden ? 'Habilidad oculta' : ''}">
-                ${formatName(a.ability.name)}${a.is_hidden ? ' (H)' : ''}
-            </button>
-        `).join('');
+        const abilities = await Promise.all(
+            pokemon.abilities.map(async a => {
+                const nameEs = await getSpanishName(this.service.get.bind(this.service), 'ability', a.ability.name);
+                return `<button class="badge" 
+                        data-url="${a.ability.url}" 
+                        title="${a.is_hidden ? 'Habilidad oculta' : ''}">
+                    ${nameEs}${a.is_hidden ? ' (H)' : ''}
+                </button>`;
+            })
+        );
 
         this.elements.stats.innerHTML = `
-            <div class="abilities">${abilities}</div>
-            <div class="stats">${stats}</div>
+            <div class="abilities">${abilities.join('')}</div>
+            <div class="stats">${stats.join('')}</div>
         `;
     }
 
     /**
      * Renderiza los movimientos
      */
-    renderMoves(pokemon) {
+    async renderMoves(pokemon) {
         if (!this.elements.moves) return;
-        
-        const moveElements = pokemon.moves.slice(0, 12).map(m => `
-            <div class="move" data-url="${m.move.url}">
-                ${formatName(m.move.name)}
-            </div>
-        `).join('');
-
-        this.elements.moves.innerHTML = `<div class="moves">${moveElements}</div>`;
+        const moveElements = await Promise.all(
+            pokemon.moves.slice(0, 12).map(async m => {
+                const nameEs = await getSpanishName(this.service.get.bind(this.service), 'move', m.move.name);
+                return `<div class="move" data-url="${m.move.url}">${nameEs}</div>`;
+            })
+        );
+        this.elements.moves.innerHTML = `<div class="moves">${moveElements.join('')}</div>`;
     }
 }
 
