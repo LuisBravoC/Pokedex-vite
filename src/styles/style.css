@@ -539,6 +539,7 @@ html, body {
   backdrop-filter: blur(10px);
 }
 
+/* JSON y visualización de datos estructurados */
 pre.json {
   max-height: 260px;
   overflow: auto;
@@ -546,6 +547,145 @@ pre.json {
   padding: 12px;
   border-radius: 8px;
   color: #dfeffb;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.2) transparent;
+}
+
+.info-card {
+  padding: 12px;
+  background: rgba(255,255,255,0.03);
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+.info-title {
+  font-weight: 600;
+  color: var(--accent);
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 8px;
+  font-size: 0.9rem;
+}
+
+.info-label {
+  color: var(--muted);
+  padding-right: 12px;
+}
+
+.info-value {
+  color: var(--text);
+}
+
+.location-card {
+  padding: 12px;
+  background: rgba(255,255,255,0.03);
+  border-radius: 8px;
+  margin-bottom: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.location-name {
+  font-weight: 600;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.location-name::before {
+  content: "📍";
+  font-size: 1.1rem;
+}
+
+.location-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 0.9rem;
+}
+
+.location-detail {
+  background: rgba(255,255,255,0.05);
+  padding: 4px 8px;
+  border-radius: 4px;
+  color: var(--muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.location-detail strong {
+  color: var(--text);
+}
+
+.encounter-method::before {
+  content: "🎯";
+}
+
+.encounter-level::before {
+  content: "⚡";
+}
+
+.encounter-chance::before {
+  content: "🎲";
+}
+
+.encounter-condition::before {
+  content: "🌟";
+}
+
+/* Toggle JSON button personalizado */
+#raw-json-toggle {
+  background: linear-gradient(180deg, #2c3e50, #2c3e50);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: var(--text);
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+#raw-json-toggle:hover {
+  background: #34495e;
+  border-color: rgba(255,255,255,0.2);
+}
+
+/* Diseño para datos de especies */
+.species-info {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.flavor-text {
+  font-style: italic;
+  color: var(--text);
+  line-height: 1.6;
+  padding: 12px;
+  background: rgba(255,255,255,0.03);
+  border-radius: 8px;
+  position: relative;
+}
+
+.flavor-text::before {
+  content: '"';
+  font-size: 2rem;
+  color: var(--accent);
+  position: absolute;
+  top: -5px;
+  left: 4px;
+  opacity: 0.5;
 }
 
 footer {

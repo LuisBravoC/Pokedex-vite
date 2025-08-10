@@ -204,8 +204,14 @@ el('raw-fetch').addEventListener('click', () => {
 });
 
 el('raw-json-toggle').addEventListener('click', () => {
-  const pre = el('raw-json');
-  pre.style.whiteSpace = pre.style.whiteSpace === 'pre' ? 'normal' : 'pre';
+  const btn = el('raw-json-toggle');
+  isJsonView = !isJsonView;
+  btn.querySelector('.btn-text').textContent = isJsonView ? 'Ver Estructurado' : 'Ver JSON';
+  btn.querySelector('.btn-icon').textContent = isJsonView ? '📋' : '📝';
+  
+  // Re-mostrar los datos actuales en el nuevo formato
+  const currentData = JSON.parse(el('raw-json').querySelector('pre')?.textContent || '{}');
+  showRaw(currentData);
 });
 
 // clear cache hotkey (ctrl+shift+c)

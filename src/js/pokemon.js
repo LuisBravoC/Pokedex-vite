@@ -3,21 +3,85 @@ import { capitalize, collectSprites, setMainSprite } from './utils';
 
 import { formatName, getSpanishName } from './formatter';
 
+let isJsonView = false;
+
 export function showRaw(obj) {
-  document.getElementById('raw-json').textContent = JSON.stringify(obj, null, 2);
+  const rawJson = document.getElementById('raw-json');
+  if (isJsonView) {
+    rawJson.innerHTML = `<pre style="max-height:400px;overflow:auto">${JSON.stringify(obj, null, 2)}</pre>`;
+  } else {
+    // Mostrar versión estructurada
+    const structuredView = createStructuredView(obj);
+    rawJson.innerHTML = structuredView;
+  }
+}
+
+function createStructuredView(data) {
+  let html = '<div class="info-card">';
+  
+  if (data.id && data.name) {
+    html += `
+      <div class="info-title">${formatName(data.name)} #${data.id}</div>
+      <div class="info-grid">`;
+    
+    // Mostrar propiedades relevantes
+    if (data.height) html += createInfoRow('Altura', `${(data.height / 10).toFixed(1)}m`);
+    if (data.weight) html += createInfoRow('Peso', `${(data.weight / 10).toFixed(1)}kg`);
+    if (data.base_experience) html += createInfoRow('Exp. Base', data.base_experience);
+    if (data.order) html += createInfoRow('Orden', `#${data.order}`);
+    
+    html += '</div></div>';
+  }
+  
+  return html;
+}
+
+function createInfoRow(label, value) {
+  return `
+    <div class="info-label">${label}</div>
+    <div class="info-value">${value}</div>
+  `;
 }
 
 export async function loadSpecies(url) {
   try {
     const s = await apiGet(url);
     const speciesArea = document.getElementById('species-card');
-    const flavor = (s.flavor_text_entries || []).find(ft => ft.language && ft.language.name === 'en') || (s.flavor_text_entries || [])[0];
-    speciesArea.innerHTML = `
-      <div style="font-weight:700;color:var(--accent);margin-bottom:6px">Especie: ${s.name}</div>
-      <div>Color: ${s.color?.name || '—'} • Habitat: ${s.habitat?.name || '—'}</div>
-      <div style="margin-top:8px;font-style:italic;color:var(--muted)">
-        ${flavor ? flavor.flavor_text.replace(/\n|\f/g, ' ') : ''}
-      </div>`;
+    const flavor = (s.flavor_text_entries || []).find(ft => ft.language && ft.language.name === 'es') 
+      || (s.flavor_text_entries || []).find(ft => ft.language && ft.language.name === 'en') 
+      || (s.flavor_text_entries || [])[0];
+
+    let html = `
+    <div class="species-info">
+      <div class="info-title">Información de Especie</div>
+      
+      <div class="info-grid">
+        ${s.color ? `<div class="info-label">Color</div><div class="info-value">${formatName(s.color.name)}</div>` : ''}
+        ${s.habitat ? `<div class="info-label">Hábitat</div><div class="info-value">${formatName(s.habitat.name)}</div>` : ''}
+        ${s.shape ? `<div class="info-label">Forma</div><div class="info-value">${formatName(s.shape.name)}</div>` : ''}
+        ${s.growth_rate ? `<div class="info-label">Crecimiento</div><div class="info-value">${formatName(s.growth_rate.name)}</div>` : ''}
+      </div>
+
+      ${flavor ? `
+        <div class="flavor-text">
+          ${flavor.flavor_text.replace(/\n|\f/g, ' ')}
+        </div>
+      ` : ''}`;
+
+    if (s.genera && s.genera.length > 0) {
+      const genus = s.genera.find(g => g.language.name === 'es')?.genus || 
+                    s.genera.find(g => g.language.name === 'en')?.genus;
+      if (genus) {
+        html += `
+          <div class="info-card">
+            <div class="info-value" style="font-style:italic">${genus}</div>
+          </div>`;
+      }
+    }
+
+    html += '</div>';
+    speciesArea.innerHTML = html;
+
     if (s.evolution_chain && s.evolution_chain.url) {
       const chain = await apiGet(s.evolution_chain.url);
       renderEvolutionChain(chain);
@@ -31,9 +95,77 @@ export async function loadEncounters(pathOrUrl) {
   try {
     const url = pathOrUrl.startsWith('http') ? pathOrUrl : `${API_BASE}/${pathOrUrl.replace(/^\//, '')}`;
     const list = await apiGet(url);
-    document.getElementById('encounters').innerHTML = '<pre style="max-height:200px;overflow:auto">' + JSON.stringify(list, null, 2) + '</pre>';
+    
+    if (!list || list.length === 0) {
+      document.getElementById('encounters').innerHTML = `
+        <div class="info-card">
+          <div class="info-title">Sin encuentros</div>
+          <div style="color:var(--muted)">Este Pokémon no se encuentra en estado salvaje.</div>
+        </div>`;
+      return;
+    }
+
+    const encountersHtml = list.map(location => {
+      const locationName = formatName(location.location_area.name.replace('-area', ''));
+      let html = `<div class="location-card">
+        <div class="location-name">${locationName}</div>
+        <div class="location-details">`;
+
+      // Agrupar encuentros por método
+      const methods = new Map();
+      location.version_details.forEach(vd => {
+        vd.encounter_details.forEach(ed => {
+          const methodName = ed.method.name;
+          if (!methods.has(methodName)) {
+            methods.set(methodName, {
+              levels: new Set(),
+              chance: ed.chance,
+              conditions: new Set()
+            });
+          }
+          methods.get(methodName).levels.add(ed.min_level === ed.max_level ? 
+            ed.min_level : 
+            `${ed.min_level}-${ed.max_level}`);
+          
+          if (ed.condition_values) {
+            ed.condition_values.forEach(cv => 
+              methods.get(methodName).conditions.add(cv.name));
+          }
+        });
+      });
+
+      // Crear detalles para cada método
+      methods.forEach((details, method) => {
+        html += `
+          <div class="location-detail encounter-method">
+            ${formatName(method)}
+          </div>
+          <div class="location-detail encounter-level">
+            Nivel <strong>${Array.from(details.levels).join(', ')}</strong>
+          </div>
+          <div class="location-detail encounter-chance">
+            <strong>${details.chance}%</strong> de encuentro
+          </div>`;
+        
+        if (details.conditions.size > 0) {
+          html += `
+            <div class="location-detail encounter-condition">
+              <strong>${Array.from(details.conditions).map(formatName).join(', ')}</strong>
+            </div>`;
+        }
+      });
+
+      html += '</div></div>';
+      return html;
+    }).join('');
+
+    document.getElementById('encounters').innerHTML = encountersHtml;
   } catch (e) {
-    document.getElementById('encounters').textContent = 'No hay encuentros o fallo al obtenerlos';
+    document.getElementById('encounters').innerHTML = `
+      <div class="info-card">
+        <div class="info-title">Error</div>
+        <div style="color:var(--muted)">No se pudieron cargar los encuentros.</div>
+      </div>`;
   }
 }
 

@@ -85,20 +85,26 @@
 
           <div>
             <div class="card">
-              <div style="font-weight:700;color:var(--accent);margin-bottom:6px">JSON / Vista previa</div>
-              <pre id="raw-json" class="json">No data fetched yet.</pre>
-              <div style="margin-top:8px">
+              <div style="font-weight:700;color:var(--accent);margin-bottom:6px">Detalles</div>
+              <div id="raw-json" class="json">No data fetched yet.</div>
+              <div class="json-controls" style="margin-top:12px">
                 <input id="raw-path" type="text" placeholder="Path arbitrario (ej. /api/v2/type/3)" style="width:100%;padding:8px;border-radius:6px;background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--text)"/>
                 <div style="display:flex;gap:8px;margin-top:8px">
-                  <button id="raw-fetch">Fetch Path</button>
-                  <button id="raw-json-toggle">Toggle JSON</button>
+                  <button id="raw-fetch" class="action-btn fetch-btn">
+                    <span class="btn-icon">🔍</span>
+                    <span class="btn-text">Buscar</span>
+                  </button>
+                  <button id="raw-json-toggle" class="action-btn">
+                    <span class="btn-icon">📝</span>
+                    <span class="btn-text">Ver JSON</span>
+                  </button>
                 </div>
               </div>
             </div>
 
             <div class="card" id="encounters-card" style="margin-top:12px">
               <div style="font-weight:700;color:var(--accent);margin-bottom:6px">Encuentros</div>
-              <div id="encounters"></div>
+              <div id="encounters" class="encounters-list"></div>
             </div>
           </div>
         </div>
