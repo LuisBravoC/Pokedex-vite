@@ -89,20 +89,6 @@ class PokemonController {
         }
 
         // Click en elementos con data-url
-        document.addEventListener('click', async (e) => {
-            const target = e.target.closest('[data-url]');
-            if (target) {
-                try {
-                    const data = await this.service.get(target.dataset.url);
-                    const rawJson = document.getElementById('raw-json');
-                    if (rawJson) {
-                        rawJson.innerHTML = `<pre class="json">${JSON.stringify(data, null, 2)}</pre>`;
-                    }
-                } catch (error) {
-                    console.error('Error fetching details:', error);
-                }
-            }
-        });
     }
 
     /**
@@ -126,12 +112,7 @@ class PokemonController {
 
             this.state.currentPokemon = new Pokemon(data);
             this.view.updateView(this.state.currentPokemon);
-            
-            // Mostrar datos en el panel de detalles
-            const rawJson = document.getElementById('raw-json');
-            if (rawJson) {
-                rawJson.innerHTML = `<pre class="json">${JSON.stringify(data, null, 2)}</pre>`;
-            }
+
         } catch (error) {
             console.error('Error loading pokemon:', error);
             alert('No se pudo cargar el Pokémon. Verifica el nombre o ID.');

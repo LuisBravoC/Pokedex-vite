@@ -8,7 +8,6 @@ class PokemonView {
     constructor(service) {
         this.service = service;
         this.setupElements();
-        this.isJsonView = false;
     }
 
     /**
@@ -26,31 +25,8 @@ class PokemonView {
             moves: document.getElementById('moves'),
             speciesCard: document.getElementById('species-card'),
             encounters: document.getElementById('encounters'),
-            rawJson: document.getElementById('raw-json'),
-            rawJsonToggle: document.getElementById('raw-json-toggle')
+            rawJson: document.getElementById('raw-json')
         };
-
-        // Configurar el toggle de JSON
-        if (this.elements.rawJsonToggle) {
-            this.elements.rawJsonToggle.addEventListener('click', () => this.toggleJsonView());
-        }
-    }
-
-    /**
-     * Alterna entre vista JSON y estructurada
-     */
-    toggleJsonView() {
-        this.isJsonView = !this.isJsonView;
-        if (this.elements.rawJsonToggle) {
-            const btn = this.elements.rawJsonToggle;
-            const textSpan = btn.querySelector('.btn-text');
-            const iconSpan = btn.querySelector('.btn-icon');
-            if (textSpan) textSpan.textContent = this.isJsonView ? 'Ver Estructurado' : 'Ver JSON';
-            if (iconSpan) iconSpan.textContent = this.isJsonView ? '📋' : '📝';
-        }
-        if (this.currentPokemon) {
-            this.showRaw(this.currentPokemon.data);
-        }
     }
 
     /**
@@ -79,108 +55,41 @@ class PokemonView {
         this.loadSpecies(pokemon);
         this.loadEncounters(pokemon);
 
-        // Mostrar datos crudos o estructurados
-        this.showRaw(pokemon.data);
+        // Mostrar vista estructurada por defecto
+        this.showRaw(pokemon);
     }
 
     /**
-     * Muestra los datos en formato JSON o estructurado
+     * Muestra los datos en formato JSON o estructurado (idéntico al original)
      */
-    showRaw(data) {
-        if (!this.elements.rawJson) return;
-
-        if (this.isJsonView) {
-            this.elements.rawJson.innerHTML = `
-                <pre class="json">${JSON.stringify(data, null, 2)}</pre>
-            `;
-        } else {
-            const view = this.currentPokemon.getStructuredView();
-            this.elements.rawJson.innerHTML = this.createStructuredView(view);
-        }
+    showRaw(pokemon) {
+        if (!this.elements.rawJson || !pokemon) return;
+        this.elements.rawJson.innerHTML = this.createStructuredView(pokemon);
     }
 
     /**
-     * Crea una vista estructurada de los datos
+     * Crea una vista estructurada de los datos (idéntica al original)
      */
-    createStructuredView(data) {
-        let html = '<div class="species-info">';
-        
-        if (data.id && data.name) {
+    createStructuredView(pokemon) {
+        let html = '<div class="info-card">';
+        if (pokemon.id && pokemon.name) {
             html += `
-                <div class="info-title">Información General</div>
-                <div class="info-grid">
-                    <div class="info-label">ID Nacional</div>
-                    <div class="info-value">#${data.number}</div>
-                    <div class="info-label">Nombre</div>
-                    <div class="info-value">${formatName(data.name)}</div>
-                    <div class="info-label">Tipos</div>
-                    <div class="info-value">
-                        ${data.types.map(t => `
-                            <span class="type type-${t.name}">${formatName(t.name)}</span>
-                        `).join(' ')}
-                    </div>
-                    <div class="info-label">Altura</div>
-                    <div class="info-value">${data.height}m</div>
-                    <div class="info-label">Peso</div>
-                    <div class="info-value">${data.weight}kg</div>
-                    <div class="info-label">Exp. Base</div>
-                    <div class="info-value">${data.base_experience || '—'}</div>
-                </div>
-            `;
-
-            // Estadísticas
-            html += `
-                <div class="info-title" style="margin-top:1rem">Estadísticas Base</div>
-                <div class="stats">
-                    ${Object.entries(data.stats).map(([name, stat]) => `
-                        <div class="stat-row">
-                            <div class="stat-name">${formatName(name)}</div>
-                            <div class="stat-bar">
-                                <div class="stat-fill stat-${name}" 
-                                     style="width:${Math.min(100, (stat.base / 255) * 100)}%">
-                                    ${stat.base}
-                                </div>
-                            </div>
-                        </div>
-                    `).join('')}
-                </div>
-            `;
-
-            // Habilidades
-            if (data.abilities && data.abilities.length > 0) {
-                html += `
-                    <div class="info-title" style="margin-top:1rem">Habilidades</div>
-                    <div class="info-grid">
-                        ${data.abilities.map(a => `
-                            <div class="info-label">${a.is_hidden ? 'Oculta' : `Ranura ${a.slot}`}</div>
-                            <div class="info-value">${formatName(a.name)}</div>
-                        `).join('')}
-                    </div>
-                `;
-            }
-
-            // Movimientos (primeros 10)
-            if (data.moves && data.moves.length > 0) {
-                html += `
-                    <div class="info-title" style="margin-top:1rem">Movimientos</div>
-                    <div class="moves">
-                        ${data.moves.slice(0, 10).map(m => `
-                            <div class="move">
-                                ${formatName(m.name)}
-                            </div>
-                        `).join('')}
-                    </div>
-                    ${data.moves.length > 10 ? `
-                        <div style="margin-top:0.5rem;color:var(--muted);font-size:0.9rem">
-                            Y ${data.moves.length - 10} más...
-                        </div>
-                    ` : ''}
-                `;
-            }
+                <div class="info-title">${formatName(pokemon.name)} #${pokemon.id}</div>
+                <div class="info-grid">`;
+            if (pokemon.height) html += this.createInfoRow('Altura', `${(pokemon.height / 10).toFixed(1)}m`);
+            if (pokemon.weight) html += this.createInfoRow('Peso', `${(pokemon.weight / 10).toFixed(1)}kg`);
+            if (pokemon.base_experience) html += this.createInfoRow('Exp. Base', pokemon.base_experience);
+            if (pokemon.order) html += this.createInfoRow('Orden', `#${pokemon.order}`);
+            html += '</div></div>';
         }
-
-        html += '</div>';
         return html;
+    }
+
+    createInfoRow(label, value) {
+        return `
+            <div class="info-label">${label}</div>
+            <div class="info-value">${value}</div>
+        `;
     }
 
     /**

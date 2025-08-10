@@ -27,11 +27,12 @@ function setupResourceExplorer() {
         try {
             const path = id ? `${resource}/${id}` : resource;
             const data = await PokeAPIService.get(path);
-            showRaw(data);
-
             if (resource === 'pokemon') {
                 app.loadPokemon(id);
-            } else if (resource === 'pokemon-species' && data.evolution_chain) {
+            } else {
+                showRaw(data);
+            }
+            if (resource === 'pokemon-species' && data.evolution_chain) {
                 const chain = await PokeAPIService.get(data.evolution_chain.url);
                 showEvolutionChain(chain);
             }
