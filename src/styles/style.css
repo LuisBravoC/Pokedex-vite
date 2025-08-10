@@ -209,12 +209,20 @@ html, body {
 .badge {
   padding: 6px 10px;
   border-radius: 999px;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.03);
+  background: rgba(255,255,255,0.500);
+  border: 1px solid rgba(255,255,255,0.500);
   white-space: nowrap;
   max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  transition: all 0.2s ease;
+}
+
+.badge:hover {
+  background: rgba(255,255,255,0.15);
+  border-color: rgba(255,255,255,0.3);
+  transform: translateY(-1px);
 }
 
 /* type colors */
@@ -297,14 +305,20 @@ html, body {
 .move {
   padding: 6px 8px;
   border-radius: 8px;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.03);
+  background: rgba(255, 255, 255, 0.500);
+  border: 1px solid rgb(255, 255, 255, 0.500);
   font-size: 13px;
   cursor: pointer;
   max-width: 240px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.move:hover {
+  background: rgba(255,255,255,0.12);
+  border-color: rgba(255,255,255,0.25);
 }
 
 /* sprite thumbnails */
