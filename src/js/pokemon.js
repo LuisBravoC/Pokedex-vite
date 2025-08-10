@@ -1,6 +1,8 @@
 import { apiGet } from './api';
 import { capitalize, collectSprites, setMainSprite } from './utils';
 
+import { formatName, getSpanishName } from './formatter';
+
 export function showRaw(obj) {
   document.getElementById('raw-json').textContent = JSON.stringify(obj, null, 2);
 }
@@ -121,10 +123,15 @@ export async function renderPokemon(p) {
   p.abilities.forEach(a => {
     const b = document.createElement('div');
     b.className = 'move';
-    b.textContent = a.ability.name + (a.is_hidden ? ' (oculta)' : '');
-    b.title = a.ability.name;
     b.style.cursor = 'pointer';
     b.dataset.url = a.ability.url;
+    
+    // Cargar el nombre en español
+    getSpanishName(apiGet, 'ability', a.ability.name).then(spanishName => {
+      b.textContent = spanishName + (a.is_hidden ? ' (oculta)' : '');
+      b.title = `${formatName(a.ability.name)}${a.is_hidden ? ' (Hidden Ability)' : ''}`;
+    });
+    
     b.addEventListener('click', async () => {
       const d = await apiGet(a.ability.url);
       showRaw(d);
@@ -144,9 +151,15 @@ export async function renderPokemon(p) {
   p.moves.slice(0, 40).forEach(m => {
     const mv = document.createElement('div');
     mv.className = 'move';
-    mv.textContent = m.move.name;
     mv.dataset.url = m.move.url;
     mv.title = 'Click para ver detalles';
+    
+    // Cargar el nombre en español
+    getSpanishName(apiGet, 'move', m.move.name).then(spanishName => {
+      mv.textContent = spanishName;
+      mv.title = `${formatName(m.move.name)} - Click para ver detalles`;
+    });
+    
     mv.addEventListener('click', async () => {
       const d = await apiGet(m.move.url);
       showRaw(d);
