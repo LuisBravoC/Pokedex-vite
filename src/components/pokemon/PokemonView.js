@@ -107,10 +107,10 @@ class PokemonView {
                          species.flavor_text_entries?.[0];
 
             // Obtener traducciones en español para color, hábitat, forma y crecimiento
-            const colorEs = species.color ? await getSpanishName(this.service.get.bind(this.service), 'pokemon-color', species.color.name) : '';
-            const habitatEs = species.habitat ? await getSpanishName(this.service.get.bind(this.service), 'pokemon-habitat', species.habitat.name) : '';
-            const shapeEs = species.shape ? await getSpanishName(this.service.get.bind(this.service), 'pokemon-shape', species.shape.name) : '';
-            const growthEs = species.growth_rate ? await getSpanishName(this.service.get.bind(this.service), 'growth-rate', species.growth_rate.name) : '';
+            const colorEs = species.color ? formatName(await getSpanishName(this.service.get.bind(this.service), 'pokemon-color', species.color.name)) : '';
+            const habitatEs = species.habitat ? formatName(await getSpanishName(this.service.get.bind(this.service), 'pokemon-habitat', species.habitat.name)) : '';
+            const shapeEs = species.shape ? formatName(await getSpanishName(this.service.get.bind(this.service), 'pokemon-shape', species.shape.name)) : '';
+            const growthEs = species.growth_rate ? formatName(await getSpanishName(this.service.get.bind(this.service), 'growth-rate', species.growth_rate.name)) : '';
 
             let html = `
             <div class="species-info">
