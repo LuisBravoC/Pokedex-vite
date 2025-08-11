@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/Pokedex-vite/pokeball.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pokédex - Vite</title>
+    <script type="module" crossorigin src="/Pokedex-vite/assets/index-B8lLDk73.js"></script>
+    <link rel="stylesheet" crossorigin href="/Pokedex-vite/assets/index-D70lays5.css">
+  </head>
+  <body>
+    <div class="wrap">
+      <aside class="shell" aria-label="Pokedex controls">
+        <div class="top">
+          <div class="logo">POKÉ</div>
+          <div class="screen">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div>
+                <strong id="pdex-title">Pokedex Explorer</strong>
+                <div style="font-size:12px;color:var(--muted)">Conectado a PokeAPI</div>
+              </div>
+              <div style="text-align:right"><small id="api-status">Online</small></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="search">
+          <input id="search-input" type="text" placeholder="Buscar por nombre o id (ej. pikachu ó 25)" autocomplete="off" />
+          <button id="search-btn" title="Buscar">🔎</button>
+          <div id="autocomplete" class="autocomplete" aria-hidden="true"></div>
+        </div>
+
+        <div class="controls">
+          <label style="color:var(--accent);font-weight:700">Explorar recursos</label>
+          <select id="resource-select"></select>
+          <input id="resource-id" type="text" placeholder="id o nombre (opcional)" />
+                  <div class="button-group">
+            <button id="fetch-btn" class="action-btn fetch-btn">
+              <span class="btn-icon">🔍</span>
+              <span class="btn-text">Buscar Recurso</span>
+            </button>
+            <button id="list-btn" class="action-btn list-btn">
+              <span class="btn-icon">📋</span>
+              <span class="btn-text">Lista (pag)</span>
+            </button>
+          </div>
+          <div class="button-group">
+            <button id="random-pokemon" class="action-btn random-btn">
+              <span class="btn-icon">🎲</span>
+              <span class="btn-text">Aleatorio</span>
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      <main class="panel">
+        <div class="pokemon-header">
+          <div class="main-sprite" id="main-sprite">—</div>
+          <div class="info">
+            <div class="title"><span id="pokemon-name">No Pokémon cargado</span> <span class="id" id="pokemon-id"></span></div>
+            <div class="types" id="pokemon-badges"></div>
+            <div id="pokemon-basic" style="margin-top:8px;color:var(--muted)"></div>
+          </div>
+          <div style="width:220px">
+            <div style="font-weight:700;color:var(--accent);margin-bottom:8px">Sprites</div>
+            <div class="thumbs" id="sprite-list"></div>
+          </div>
+        </div>
+
+
+        <div id="main-panel" style="display:grid;grid-template-columns:1fr 400px;gap:18px;margin-top:12px;position:relative">
+          <div>
+            <div class="card">
+              <div style="font-weight:700;color:var(--accent);margin-bottom:6px">Stats & Habilidades</div>
+              <div id="stats-abilities"></div>
+              <div style="font-weight:700;color:var(--accent);margin-top:10px">Movimientos</div>
+              <div id="moves" class="moves"></div>
+            </div>
+
+            <div class="card" id="species-card"></div>
+          </div>
+
+          <div>
+            <div class="card">
+              <div style="font-weight:700;color:var(--accent);margin-bottom:6px">Detalles</div>
+              <div id="raw-json" class="json">No data fetched yet.</div>
+            </div>
+
+            <div class="card" id="encounters-card" style="margin-top:12px">
+              <div style="font-weight:700;color:var(--accent);margin-bottom:6px">Encuentros</div>
+              <div id="encounters" class="encounters-list"></div>
+            </div>
+          </div>
+        </div>
+
+        <div id="pokemon-list-view" style="display:none;margin-top:12px"></div>
+
+      </main>
+    </div>
+  </body>
+</html>
