@@ -1,9 +1,108 @@
+/* --- Pokemon ListView --- */
+.pokemon-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.pokemon-list-item {
+  display: flex;
+  align-items: center;
+  background: var(--card);
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.12);
+  padding: 16px 20px;
+  transition: box-shadow 0.2s, transform 0.2s;
+  cursor: pointer;
+  border: 2px solid transparent;
+}
+.pokemon-list-item:hover {
+  box-shadow: 0 4px 24px rgba(255,204,0,0.18);
+  border-color: var(--accent);
+  transform: translateY(-2px) scale(1.01);
+}
+.pokemon-list-item img {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  margin-right: 24px;
+  background: #fff2;
+  border-radius: 8px;
+}
+.poke-list-info {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 32px;
+}
+.poke-list-info > div {
+  font-size: 1.05rem;
+}
+.poke-list-view-btn {
+  background: var(--accent);
+  color: #222;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 18px;
+  font-weight: 700;
+  font-size: 1rem;
+  margin-left: 24px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.poke-list-view-btn:hover {
+  background: #66b3ff;
+}
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 18px;
+  margin-top: 18px;
+}
+.pagination button {
+  background: var(--accent);
+  color: #222;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 16px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.pagination button:disabled {
+  background: #ccc;
+  color: #888;
+  cursor: not-allowed;
+}
+
+@media (max-width: 700px) {
+  .pokemon-list-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 14px 10px;
+  }
+  .poke-list-info {
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
+  }
+  .poke-list-view-btn {
+    margin-left: 0;
+    margin-top: 10px;
+    width: 100%;
+  }
+}
+
 :root{
   --bg-1: #071029;
   --bg-2: #0b1330;
   --panel: #0f1720;
   --glass: rgba(255,255,255,0.03);
-  --accent: #ffcc00;
+  --accent: #0095ab;
   --card: #111319;
   --shadow: 0 8px 30px rgba(0,0,0,0.6);
   --text: #e6eef8;

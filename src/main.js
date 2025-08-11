@@ -1,6 +1,7 @@
 import './styles/style.css';
 import PokemonController from './components/pokemon/PokemonController';
 import PokemonView from './components/pokemon/PokemonView';
+import PokemonListView from './components/pokemon/PokemonListView';
 import PokeAPIService from './services/pokeapi';
 
 // Función auxiliar para seleccionar elementos del DOM
@@ -41,15 +42,23 @@ function setupResourceExplorer() {
         }
     });
 
-    el('list-btn')?.addEventListener('click', async () => {
-        const resource = el('resource-select').value;
-        try {
-            const data = await PokeAPIService.get(`${resource}?limit=20&offset=0`);
-            showListing(data, resource);
-        } catch (e) {
-            alert('Error al listar recursos: ' + e.message);
-        }
-    });
+  el('list-btn')?.addEventListener('click', async () => {
+    // Mostrar la lista paginada de Pokémon
+    const mainPanel = el('main-panel');
+    const listView = el('pokemon-list-view');
+    if (!listView) return;
+    mainPanel.style.display = 'none';
+    listView.style.display = 'block';
+    if (!window.pokemonListView) {
+      window.pokemonListView = new PokemonListView(listView, async (id) => {
+        // Al seleccionar un Pokémon, mostrar su info y volver al panel principal
+        listView.style.display = 'none';
+        mainPanel.style.display = '';
+        await app.loadPokemon(id);
+      });
+    }
+    window.pokemonListView.loadPage(0);
+  });
 
     el('first-151')?.addEventListener('click', async () => {
         try {
