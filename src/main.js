@@ -22,38 +22,50 @@ let app;
 function setupResourceExplorer() {
     el('resource-select').innerHTML = resources.map(r => `<option value="${r}">${r}</option>`).join('');
 
-    el('fetch-btn')?.addEventListener('click', async () => {
-        const resource = el('resource-select').value;
-        const id = el('resource-id').value.trim();
-        try {
-            const path = id ? `${resource}/${id}` : resource;
-            const data = await PokeAPIService.get(path);
-            if (resource === 'pokemon') {
-                app.loadPokemon(id);
-            } else {
-          // ...existing code...
-            }
-            if (resource === 'pokemon-species' && data.evolution_chain) {
-                const chain = await PokeAPIService.get(data.evolution_chain.url);
-          // ...existing code...
-            }
-        } catch (e) {
-        alert('Error al obtener el recurso.');
-        }
-    });
-
-  el('list-btn')?.addEventListener('click', async () => {
-    // Mostrar la lista paginada de Pokémon
+  el('fetch-btn')?.addEventListener('click', async () => {
+    const resource = el('resource-select').value;
+    const id = el('resource-id').value.trim();
     const mainPanel = el('main-panel');
     const listView = el('pokemon-list-view');
+  if (mainPanel) mainPanel.style.display = window.innerWidth < 700 ? '' : 'grid';
+  if (listView) listView.style.display = 'none';
+    const backBtn = el('back-to-list');
+    if (backBtn) backBtn.style.display = 'none';
+    try {
+      const path = id ? `${resource}/${id}` : resource;
+      const data = await PokeAPIService.get(path);
+      if (resource === 'pokemon') {
+        app.loadPokemon(id);
+      } else {
+      // ...existing code...
+      }
+      if (resource === 'pokemon-species' && data.evolution_chain) {
+        const chain = await PokeAPIService.get(data.evolution_chain.url);
+      // ...existing code...
+      }
+    } catch (e) {
+    alert('Error al obtener el recurso.');
+    }
+  });
+
+  el('list-btn')?.addEventListener('click', async () => {
+    const mainPanel = el('main-panel');
+    const listView = el('pokemon-list-view');
+    const backBtn = el('back-to-list');
     if (!listView) return;
     mainPanel.style.display = 'none';
     listView.style.display = 'block';
+    if (backBtn) backBtn.style.display = 'none';
     if (!window.pokemonListView) {
       window.pokemonListView = new PokemonListView(listView, async (id) => {
-        // Al seleccionar un Pokémon, mostrar su info y volver al panel principal
         listView.style.display = 'none';
-        mainPanel.style.display = '';
+        if (window.innerWidth < 700) {
+          mainPanel.style.display = '';
+        } else {
+          mainPanel.style.display = 'grid';
+        }
+        const backBtn = el('back-to-list');
+        if (backBtn) backBtn.style.display = 'block';
         await app.loadPokemon(id);
       });
     }
@@ -225,10 +237,16 @@ el('search-input').addEventListener('keydown', e => {
 });
 
 // Button event listeners
-el('search-btn').addEventListener('click', () => {
-  const v = el('search-input').value.trim();
-  if (v) loadPokemon(v);
-});
+    el('search-btn').addEventListener('click', () => {
+      const v = el('search-input').value.trim();
+      const mainPanel = el('main-panel');
+      const listView = el('pokemon-list-view');
+  if (mainPanel) mainPanel.style.display = window.innerWidth < 700 ? '' : 'grid';
+  if (listView) listView.style.display = 'none';
+      const backBtn = el('back-to-list');
+      if (backBtn) backBtn.style.display = 'none';
+      if (v) loadPokemon(v);
+    });
 
 el('fetch-btn').addEventListener('click', () => {
   const res = el('resource-select').value;
@@ -244,10 +262,16 @@ el('fetch-btn').addEventListener('click', () => {
 
 el('list-btn').addEventListener('click', () => listResource(el('resource-select').value));
 
-el('random-pokemon').addEventListener('click', () => {
-  const rand = Math.floor(Math.random() * 1118) + 1;
-  loadPokemon(rand);
-});
+    el('random-pokemon').addEventListener('click', () => {
+      const rand = Math.floor(Math.random() * 1118) + 1;
+      const mainPanel = el('main-panel');
+      const listView = el('pokemon-list-view');
+  if (mainPanel) mainPanel.style.display = window.innerWidth < 700 ? '' : 'grid';
+  if (listView) listView.style.display = 'none';
+      const backBtn = el('back-to-list');
+      if (backBtn) backBtn.style.display = 'none';
+      loadPokemon(rand);
+    });
 
 el('first-151').addEventListener('click', () => listResource('pokemon', 'pokemon?limit=151&offset=0'));
 

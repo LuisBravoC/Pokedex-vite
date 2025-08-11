@@ -102,7 +102,7 @@
   --bg-2: #0b1330;
   --panel: #0f1720;
   --glass: rgba(255,255,255,0.03);
-  --accent: #0095ab;
+  --accent: #ffcc00; /* ANTERIOR: 0095ab */
   --card: #111319;
   --shadow: 0 8px 30px rgba(0,0,0,0.6);
   --text: #e6eef8;
